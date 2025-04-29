@@ -1,0 +1,37 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:rw
+      - ./mosquitto/data:/mosquitto/data:rw
+      - ./mosquitto/log:/mosquitto/log:rw
+
+  node_red:
+    image: nodered/node-red
+    hostname: node_red
+    container_name: node_red
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered_data:/data:rw
+
+  mqttx:
+    image: emqx/mqttx-web
+    hostname: mqttx
+    container_name: mqttx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+# volumes for mapping data,config and log
+volumes:
+  config:
+  data:
+  log:
