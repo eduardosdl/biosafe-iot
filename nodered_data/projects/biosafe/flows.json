@@ -2,7 +2,7 @@
     {
         "id": "da0c76b0dfff2c24",
         "type": "tab",
-        "label": "Fluxo 1",
+        "label": "create profile",
         "disabled": false,
         "info": "",
         "env": []
@@ -86,11 +86,11 @@
             }
         },
         "site": {
-            "name": "Node-RED Dashboard",
+            "name": "Biosafe",
             "hideToolbar": "false",
             "allowSwipe": "false",
             "lockMenu": "false",
-            "allowTempTheme": "true",
+            "allowTempTheme": "false",
             "dateFormat": "DD/MM/YYYY",
             "sizes": {
                 "sx": 48,
@@ -103,26 +103,6 @@
                 "py": 0
             }
         }
-    },
-    {
-        "id": "096bc5cf4440549d",
-        "type": "ui_tab",
-        "name": "page",
-        "icon": "dashboard",
-        "order": 1,
-        "disabled": false,
-        "hidden": false
-    },
-    {
-        "id": "3b0a17046da8d47b",
-        "type": "ui_group",
-        "name": "main",
-        "tab": "096bc5cf4440549d",
-        "order": 1,
-        "disp": true,
-        "width": 6,
-        "collapse": false,
-        "className": ""
     },
     {
         "id": "0f8538c6cface9c4",
@@ -156,11 +136,271 @@
         "sessionExpiry": ""
     },
     {
-        "id": "f45f884bcb434ea8",
+        "id": "2c5836ff6dc1663f",
+        "type": "ui_tab",
+        "name": "Adicionar",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "9813e1e93f4d47a8",
+        "type": "ui_group",
+        "name": "main",
+        "tab": "2c5836ff6dc1663f",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b34fc89e777ec176",
+        "type": "ui_tab",
+        "name": "testes",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "7993f396df3e3a2a",
+        "type": "ui_group",
+        "name": "main",
+        "tab": "b34fc89e777ec176",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "413e03bebbb1dca2",
+        "type": "ui_spacer",
+        "z": "da0c76b0dfff2c24",
+        "name": "spacer",
+        "group": "9813e1e93f4d47a8",
+        "order": 4,
+        "width": "1",
+        "height": "1"
+    },
+    {
+        "id": "1b4135c51fa4af2b",
+        "type": "ui_spacer",
+        "z": "da0c76b0dfff2c24",
+        "name": "spacer",
+        "group": "9813e1e93f4d47a8",
+        "order": 2,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "9916472da98c55fe",
+        "type": "ui_text_input",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "label": "Nome",
+        "tooltip": "",
+        "group": "9813e1e93f4d47a8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "mode": "text",
+        "delay": 300,
+        "topic": "name",
+        "sendOnBlur": false,
+        "className": "",
+        "topicType": "flow",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "a41fed49bb6c29e7"
+            ]
+        ]
+    },
+    {
+        "id": "cce82af98f490355",
+        "type": "ui_text_input",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "label": "Cargo",
+        "tooltip": "",
+        "group": "9813e1e93f4d47a8",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "position",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "flow",
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "a41fed49bb6c29e7"
+            ]
+        ]
+    },
+    {
+        "id": "1d737056e0800fc7",
+        "type": "ui_text_input",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "label": "Email",
+        "tooltip": "",
+        "group": "9813e1e93f4d47a8",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "email",
+        "delay": 300,
+        "topic": "email",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "flow",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "a41fed49bb6c29e7"
+            ]
+        ]
+    },
+    {
+        "id": "a41fed49bb6c29e7",
+        "type": "ui_button",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "group": "9813e1e93f4d47a8",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "button",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "btn",
+        "payloadType": "flow",
+        "topic": "",
+        "topicType": "str",
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "53b3484a7ae06ee9"
+            ]
+        ]
+    },
+    {
+        "id": "53b3484a7ae06ee9",
+        "type": "function",
+        "z": "da0c76b0dfff2c24",
+        "name": "function 1",
+        "func": "let nome = flow.get(\"name\") || \"\";\nlet cargo = flow.get(\"position\") || \"\";\nlet email = flow.get(\"email\") || \"\";\n\nlet dados = {\n    name: nome,\n    position: cargo,\n    email: email\n};\n\nmsg.payload = dados;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 180,
+        "wires": [
+            [
+                "6cd75978b17ae8ec"
+            ]
+        ]
+    },
+    {
+        "id": "6cd75978b17ae8ec",
+        "type": "mqtt out",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "topic": "fingerprint/register/init",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "0f8538c6cface9c4",
+        "x": 860,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "7bb23d62fabc5578",
+        "type": "comment",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "info": "{\n  \"msg\": \"init\"\n}",
+        "x": 900,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "e5b1aca28620988b",
         "type": "mqtt in",
         "z": "da0c76b0dfff2c24",
         "name": "",
-        "topic": "teste",
+        "topic": "figerprint/register/status",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "0f8538c6cface9c4",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7d4612a412bf4e63",
+        "type": "comment",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "info": "{\n  \"status\": \"success\",\n  \"id\": 10\n}",
+        "x": 140,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "8d342762aaf2a34b",
+        "type": "file",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "filename": "",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 470,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dfa624af76163c52",
+        "type": "mqtt in",
+        "z": "da0c76b0dfff2c24",
+        "name": "",
+        "topic": "figerprint/auth/status",
         "qos": "2",
         "datatype": "auto-detect",
         "broker": "0f8538c6cface9c4",
@@ -169,32 +409,29 @@
         "rh": 0,
         "inputs": 0,
         "x": 170,
-        "y": 100,
+        "y": 520,
         "wires": [
             [
-                "578028a5c5e24a06"
+                "4b601129311dc048"
             ]
         ]
     },
     {
-        "id": "578028a5c5e24a06",
-        "type": "ui_text",
+        "id": "4b601129311dc048",
+        "type": "file in",
         "z": "da0c76b0dfff2c24",
-        "group": "3b0a17046da8d47b",
-        "order": 0,
-        "width": 0,
-        "height": 0,
         "name": "",
-        "label": "text",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": 16,
-        "color": "#000000",
-        "x": 370,
-        "y": 100,
-        "wires": []
+        "filename": "",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 410,
+        "y": 520,
+        "wires": [
+            []
+        ]
     }
 ]

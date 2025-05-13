@@ -6,7 +6,7 @@
                 "view-store-position": false,
                 "view-show-grid": true,
                 "view-snap-grid": true,
-                "view-grid-size": 20,
+                "view-grid-size": "50",
                 "view-node-status": true,
                 "view-node-show-label": true,
                 "view-show-tips": true,
@@ -20,6 +20,9 @@
             "user": {
                 "name": "eduardosdl",
                 "email": "edu.silva.e08@gmail.com"
+            },
+            "workflow": {
+                "mode": "manual"
             }
         }
     }

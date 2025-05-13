@@ -2,7 +2,6 @@ services:
   mosquitto:
     image: eclipse-mosquitto
     hostname: mosquitto
-    container_name: mosquitto
     restart: unless-stopped
     ports:
       - "1883:1883"
@@ -11,27 +10,83 @@ services:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
+    networks:
+      - biosafe_network
 
   node_red:
     image: nodered/node-red
     hostname: node_red
-    container_name: node_red
     restart: unless-stopped
     ports:
       - "1880:1880"
     volumes:
       - ./nodered_data:/data:rw
+    networks:
+      - biosafe_network
 
   mqttx:
     image: emqx/mqttx-web
     hostname: mqttx
-    container_name: mqttx
     restart: unless-stopped
     ports:
       - "80:80"
+    networks:
+      - biosafe_network
 
-# volumes for mapping data,config and log
+  postgres:
+    image: postgres:latest
+    hostname: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: biosafe
+      POSTGRES_PASSWORD: biosafe
+      POSTGRES_DB: biosafe
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - biosafe_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    hostname: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: biosafe@email.com
+      PGADMIN_DEFAULT_PASSWORD: biosafe
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - biosafe_network
+    depends_on:
+      - postgres
+
+  influxdb:
+    image: influxdb:latest
+    hostname: influxdb
+    restart: unless-stopped
+    environment:
+      INFLUXDB_USER: biosafe
+      INFLUXDB_USER_PASSWORD: biosafe
+      INFLUXDB_DB: biosafe
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    networks:
+      - biosafe_network
+
+networks:
+  biosafe_network:
+    driver: bridge
+
 volumes:
   config:
   data:
   log:
+  postgres_data:
+  pgadmin_data:
+  influxdb_data:
