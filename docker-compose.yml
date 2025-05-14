@@ -24,6 +24,19 @@ services:
     networks:
       - biosafe_network
 
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_local
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: digitalStorage
+      MYSQL_USER: user
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./dados_mysql:/var/lib/mysql
   mqttx:
     image: emqx/mqttx-web
     hostname: mqttx
