@@ -53,6 +53,7 @@ bool LockManager::lock() {
         
         sendMqttStatus(0, false, true);
         _lockState = LOCKED;
+        delay(1000);
         _fingerprint->showModuleInfo();
         
         return true;

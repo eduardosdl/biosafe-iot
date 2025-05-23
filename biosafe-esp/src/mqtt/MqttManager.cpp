@@ -37,6 +37,11 @@ void MqttManager::begin(IPAddress host, uint16_t port, const char* username, con
     _display->showMessage("MQTT configurado");
 }
 
+// Configurar o callback para solicitar o registro
+void MqttManager::setRequestEnroll(RequestEnroll requestEnroll) {
+    _requestEnroll = requestEnroll;
+}
+
 // Conectar ao broker MQTT
 void MqttManager::connect() {
     _display->showMessage("Conectando ao MQTT...");
@@ -88,6 +93,7 @@ void MqttManager::onMessage(
     size_t index,
     size_t total
 ) {
+    // deserialização do JSON Recebido
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, payload);
 
@@ -97,12 +103,14 @@ void MqttManager::onMessage(
         return;
     }
     
+    // Verifica o tópico e executa a ação correspondente
     if (strcmp(topic, "register/init") == 0) {
         const char* msg = doc["msg"];
 
         if (strcmp(msg, "init") == 0) {
-            _display->showMessage("Iniciando registro de digital");
-            _fingerprint->startEnroll();
+            if (_requestEnroll) {
+                _requestEnroll();
+            }
         }
     } else if (strcmp(topic, "auth/status") == 0) {
         bool status = doc["status"].as<bool>();
@@ -117,12 +125,6 @@ void MqttManager::onMessage(
             delay(2000);
             _fingerprint->showModuleInfo();
         }
-    } else if (strcmp(topic, "fingerprint/data/recived") == 0) {
-        Serial.println("Dados de digital recebidos");
-        Serial.print(" payload: ");
-    } else if (strcmp(topic, "lock/state/recived") == 0) {
-        Serial.println("Estado da fechadura recebido");
-        Serial.print(" payload: ");
     }
 }
 
@@ -137,13 +139,14 @@ void MqttManager::onPublish(uint16_t packetId) {
 void MqttManager::subscribeTopics() {
     _mqttClient.subscribe("register/init", 2);
     _mqttClient.subscribe("auth/status", 2);
-    _mqttClient.subscribe("fingerprint/delete/init", 2);
-    _mqttClient.subscribe("fingerprint/data/recived", 2);
-    _mqttClient.subscribe("lock/state/recived", 2);
 }
 
 // Publicar dados de digital
 void MqttManager::publishData(const char* topic, const char* data) {
+    Serial.print("Publicando dados: ");
+    Serial.println(topic);
+    Serial.print(" -> ");
+    Serial.println(data);
     _mqttClient.publish(topic, 2, false, data);
 }
 

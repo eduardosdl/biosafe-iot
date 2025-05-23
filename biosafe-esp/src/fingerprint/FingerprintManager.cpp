@@ -41,16 +41,20 @@ void FingerprintManager::setMqttPublish(MqttPublish callback) {
     _mqttPublish = callback;
 }
 
+// inicia o processo de autenticação
 void FingerprintManager::startAuth() {
-    _currentAuthState = AUTH_WAIT_FINGER;
+    _currentState = FINGERPRINT_AUTH;
+    _currentAuthState = AUTH_FINGER_WAIT;
+    _currentEnrollState = ENROLL_IDLE;
 }
 
 // Inicia o processo de cadastro de impressão digital
 void FingerprintManager::startEnroll() {
-    _enrollId = _finger.templateCount + 1; // Incrementa o ID para o novo cadastro
-    _currentEnrollState = WAIT_FIRST_FINGER;
+    _enrollId = _finger.templateCount + 1;
+    _currentState = FINGERPRINT_ENROLL;
     _currentAuthState = AUTH_IDLE;
-    _display->showMessage("Posicione o dedo...", 50);
+    _currentEnrollState = ENROLL_FIRST_CAPTURE;
+    _display->showMessage("Posicione o dedo para cadastrar...", 50);
 }
 
 // Exclui uma impressão digital pelo ID
@@ -88,23 +92,35 @@ int FingerprintManager::getTemplateCount() {
     return _count;
 }
 
-// Retorna se o módulo está em processo de cadastro
-bool FingerprintManager::isEnrolling() {
-    return _currentEnrollState != IDLE;
+// Atualiza o estado do módulo
+void FingerprintManager::update() {
+    switch (_currentState) {
+        case FINGERPRINT_IDLE:
+            break;
+        case FINGERPRINT_AUTH:
+            updateAuthProcess();
+            break;
+        case FINGERPRINT_ENROLL:
+            updateEnrollProcess();
+            break;
+    }
 }
 
+// Atualiza o processo de autenticação
 void FingerprintManager::updateAuthProcess() {
-
-    if (_currentAuthState == AUTH_IDLE) return;
-    
     switch (_currentAuthState) {
-        case AUTH_WAIT_FINGER:
+        case AUTH_IDLE:
+            // não realiza nada
+            break;
+        case AUTH_FINGER_WAIT:
+            // Aguarda o dedo ser colocado no sensor
             if (_finger.getImage() == FINGERPRINT_OK) {
-                _currentAuthState = AUTH_PROCESS_IMAGE;
+                _currentAuthState = AUTH_FINGER_PROCESS;
             }
             break;
 
-        case AUTH_PROCESS_IMAGE:
+        case AUTH_FINGER_PROCESS:
+            // Processa a imagem da digital
             if (_finger.image2Tz() == FINGERPRINT_OK) {
                 _currentAuthState = AUTH_IDENTIFY;
             } else {
@@ -113,6 +129,7 @@ void FingerprintManager::updateAuthProcess() {
             break;
 
         case AUTH_IDENTIFY:
+            // Tenta identificar a digital
             if (_finger.fingerSearch() == FINGERPRINT_OK) {
                 int fingerId = _finger.fingerID;
 
@@ -131,74 +148,100 @@ void FingerprintManager::updateAuthProcess() {
             break;
 
         case AUTH_FAILED:
-            Serial.println("Auth failed.");
-            _currentAuthState = AUTH_WAIT_FINGER;
+            // Falha na autenticação
+            _display->setBackgroundColor(0xe8a3);
+            _display->setTextColor(ST7735_WHITE);
+            _display->showMessage("Sem reconhecimento", 45, 2, false);
+            _display->showMessage("Tente novamente.", 55, 2, false);
+            sendMqttMessage("auth/init", 0, false);
+            delay(3000);
+            showModuleInfo();
             break;
+
         default:
             break;
     }
 }
 
-// Atualiza o processo de cadastro de impressão digital
+// Atualiza o processo de cadastro
 void FingerprintManager::updateEnrollProcess() {
-    if (_currentEnrollState == IDLE) return;
-
     switch (_currentEnrollState) {
-        case WAIT_FIRST_FINGER:
+        case ENROLL_IDLE:
+            // não realiza nada
+            break;
+        case ENROLL_FIRST_CAPTURE:
+            // Aguarda o dedo ser colocado no sensor
             if (_finger.getImage() == FINGERPRINT_OK) {
                 _finger.image2Tz(1);
                 _display->showMessage("Remova o dedo...", 50);
-                _currentEnrollState = WAIT_REMOVE_FINGER;
+                _currentEnrollState = ENROLL_FIRST_REMOVE;
             }
             break;
 
-        case WAIT_REMOVE_FINGER:
+        case ENROLL_FIRST_REMOVE:
+            // Aguarda o dedo ser removido do sensor
             if (_finger.getImage() == FINGERPRINT_NOFINGER) {
                 _display->showMessage("Coloque o dedo novamente...", 50);
-                _currentEnrollState = WAIT_SECOND_FINGER;
+                _currentEnrollState = ENROLL_SECOND_CAPTURE;
             }
             break;
 
-        case WAIT_SECOND_FINGER:
+        case ENROLL_SECOND_CAPTURE:
+            // Aguarda o dedo ser colocado novamente no sensor
             if (_finger.getImage() == FINGERPRINT_OK) {
                 _finger.image2Tz(2);
+                _display->showMessage("Remova o dedo...", 50);
+                _currentEnrollState = ENROLL_SECOND_REMOVE;
+            }
+            break;
+
+        case ENROLL_SECOND_REMOVE:
+            // Aguarda o dedo ser removido do sensor
+            if (_finger.getImage() == FINGERPRINT_NOFINGER) {
                 _display->showMessage("Criando modelo...", 50);
-                _currentEnrollState = CREATE_MODEL;
+                _currentEnrollState = ENROLL_CREATE_MODEL;
             }
             break;
 
-        case CREATE_MODEL:
+        case ENROLL_CREATE_MODEL:
+            // Cria o modelo da digital
             if (_finger.createModel() == FINGERPRINT_OK) {
-                _currentEnrollState = STORE_MODEL;
+                _currentEnrollState = ENROLL_STORE_MODEL;
             } else {
-                _currentEnrollState = FAILED;
+                _currentEnrollState = ENROLL_FAILED;
             }
             break;
 
-        case STORE_MODEL:
+        case ENROLL_STORE_MODEL:
+            // Armazena o modelo da digital
             if (_finger.storeModel(_enrollId) == FINGERPRINT_OK) {
-                _display->showMessage("Cadastro completo!", 50);                
-                delay(1000);
-                sendMqttMessage("fingerprint/register/status", _enrollId, true);
+                _display->setBackgroundColor(0x05E3);
+                _display->setTextColor(ST7735_BLACK);
+                _display->showMessage("Cadastro completo", 50, 2, false);               
+                delay(2000);
+                sendMqttMessage("register/status", _enrollId, true);
                 showModuleInfo();
-                _currentEnrollState = IDLE;
             } else {
-                _currentEnrollState = FAILED;
+                _currentEnrollState = ENROLL_FAILED;
             }
             break;
-            
-        case FAILED:
-            _display->showMessage("Erro ao salvar.", 50);
-            delay(1000);
-            sendMqttMessage("fingerprint/register/status", _enrollId, false);
+
+        case ENROLL_FAILED:
+            // Falha no cadastro
+            _display->setBackgroundColor(0xbbcf);
+            _display->setTextColor(ST7735_WHITE);
+            _display->showMessage("Falha ao cadastrar.", 45, 2, false);
+            _display->showMessage("Solicite o cadastro novamente.", 55, 2, false);
+            sendMqttMessage("register/status", _enrollId, false);
+            delay(2000);
             showModuleInfo();
-            _currentEnrollState = IDLE;
             break;
 
         default:
             break;
     }
 }
+
 
 void FingerprintManager::sendMqttMessage(const char* topic, const int16_t id, const bool status) {
     if (_mqttPublish) {

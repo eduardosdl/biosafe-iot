@@ -8,11 +8,16 @@
 #include "../fingerprint/FingerprintManager.h"
 #include "../lock/LockManager.h"
 
+typedef void (*RequestEnroll)();
+
 class MqttManager {
 public:
     // Construtor
     MqttManager(DisplayManager* display, FingerprintManager* fingerprint, LockManager* lock);
     
+    // Setters
+    void setRequestEnroll(RequestEnroll requestEnroll);
+
     // Métodos
     void begin(IPAddress host, uint16_t port, const char* username, const char* password);
     void connect();
@@ -23,6 +28,15 @@ public:
     bool isConnected() const;
     
 private:
+    // Variáveis privadas
+    AsyncMqttClient _mqttClient;
+    Ticker _mqttReconnectTimer;
+    DisplayManager* _display;
+    FingerprintManager* _fingerprint;
+    LockManager* _lock;
+    RequestEnroll _requestEnroll;
+    bool _connected;
+
     // Callbacks
     void onConnect(bool sessionPresent);
     void onDisconnect(AsyncMqttClientDisconnectReason reason);
@@ -30,14 +44,6 @@ private:
     void onUnsubscribe(uint16_t packetId);
     void onMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
     void onPublish(uint16_t packetId);
-    
-    // Variáveis privadas
-    AsyncMqttClient _mqttClient;
-    Ticker _mqttReconnectTimer;
-    DisplayManager* _display;
-    FingerprintManager* _fingerprint;
-    LockManager* _lock;
-    bool _connected;
 };
 
 #endif // MQTT_MANAGER_H
