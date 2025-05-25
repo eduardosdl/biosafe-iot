@@ -37,6 +37,9 @@ services:
       - "3306:3306"
     volumes:
       - ./dados_mysql:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - biosafe_network
   mqttx:
     image: emqx/mqttx-web
     hostname: mqttx
