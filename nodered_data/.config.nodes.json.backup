@@ -664,6 +664,7 @@
                 "module": "node-red-dashboard",
                 "file": "/data/node_modules/node-red-dashboard/nodes/ui_spacer.js"
             }
-        }
+        },
+        "pending_version": "^3.6.0"
     }
 }
