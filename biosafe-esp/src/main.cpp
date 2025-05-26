@@ -7,10 +7,15 @@
 
 // DEFINIÇÃO DE CONSTANTES
 // - wifi
+// #define WIFI_SSID "NOVA ROMA_ALUNOS"
+// #define WIFI_PASSWORD "Alunos@2025"
+// #define WIFI_SSID "Edu"
+// #define WIFI_PASSWORD "eduardo23"
 #define WIFI_SSID "Edla_2.4"
 #define WIFI_PASSWORD "13052203"
 // - mqtt
-#define MQTT_HOST IPAddress(192, 168, 1, 20)
+#define MQTT_HOST IPAddress(192, 168, 1, 16)
+// #define MQTT_HOST IPAddress(192, 168, 130, 64)
 #define MQTT_PORT 1883
 #define BROKER_USER "edu"
 #define BROKER_PASS "eduardo"
@@ -39,21 +44,28 @@ WifiManager wifi(&display);
 // - mqtt
 MqttManager mqtt(&display, &fingerprint, &lock);
 
+// variaveis de controle de loop
+volatile bool fingerprintEnroll = false;
+
 // Callbacks
 void connectToMqtt() {
     mqtt.connect();
 }
 
-void sendFingerprintMessage (const char* topic, const char* payload) {
+void sendMqttMessage (const char* topic, const char* payload) {
     if (mqtt.isConnected()) {
         mqtt.publishData(topic, payload);
     }
 }
 
+void requestFingerprintEnroll() {
+    fingerprintEnroll = true;
+}
+
 void setup() {
     Serial.begin(115200); 
     
-    // inicialização dos modulos
+    // inicialização do display
     display.begin();
     display.showMessage("Display configurado");
 
@@ -66,12 +78,14 @@ void setup() {
 
     // Inicializa a fechadura
     lock.begin();
+    lock.setMqttPublish(sendMqttMessage);
     
     // Inicializa o MQTT
     mqtt.begin(MQTT_HOST, MQTT_PORT, BROKER_USER, BROKER_PASS);
-
-    // injeta callback de publicação MQTT no fingerprint manager
-    fingerprint.setMqttPublish(sendFingerprintMessage);
+    
+    // injeção de callbacks
+    mqtt.setRequestEnroll(requestFingerprintEnroll);
+    fingerprint.setMqttPublish(sendMqttMessage);
 
     // Configuração e início do WiFi
     wifi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -81,6 +95,10 @@ void setup() {
 void loop() {
     lock.update();
 
-    fingerprint.updateAuthProcess();
-    // fingerprint.updateEnrollProcess(); 
+    if (fingerprintEnroll) {
+        fingerprint.startEnroll();
+        fingerprintEnroll = false;
+    }
+
+    fingerprint.update();
 }

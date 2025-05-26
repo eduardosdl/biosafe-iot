@@ -29,7 +29,6 @@ public:
     // Métodos de controle
     bool unlock(uint16_t userId = 0, const char* username = "");
     bool lock();
-    
     void update();
     
 private:

@@ -7,27 +7,36 @@
 #include "../display/DisplayManager.h"
 #include <functional>
 
+// enum de estados para o módulo de impressão digital
+enum FingerprintState {
+    FINGERPRINT_IDLE,
+    FINGERPRINT_AUTH,
+    FINGERPRINT_ENROLL,
+};
+
+// enum de estados para o processo de autenticação
 enum AuthState {
     AUTH_IDLE,
-    AUTH_WAIT_FINGER,
-    AUTH_PROCESS_IMAGE,
+    AUTH_FINGER_WAIT,
+    AUTH_FINGER_PROCESS,
     AUTH_IDENTIFY,
-    AUTH_SUCCESS,
     AUTH_FAILED
 };
 
+// enum de estados para o processo de registro
 enum EnrollState {
-    IDLE,
-    WAIT_FIRST_FINGER,
-    PROCESS_FIRST_IMAGE,
-    WAIT_REMOVE_FINGER,
-    WAIT_SECOND_FINGER,
-    PROCESS_SECOND_IMAGE,
-    CREATE_MODEL,
-    STORE_MODEL,
-    FAILED
+    ENROLL_IDLE,
+    ENROLL_FIRST_CAPTURE,
+    ENROLL_FIRST_REMOVE,
+    ENROLL_SECOND_CAPTURE,
+    ENROLL_SECOND_REMOVE,
+    ENROLL_CREATE_MODEL,
+    ENROLL_STORE_MODEL,
+    ENROLL_WAIT_SECOND_FINGER,
+    ENROLL_FAILED
 };
 
+// Define um tipo de função de callback para mensagens MQTT
 typedef void (*MqttPublish)(const char* topic, const char* payload);
 
 class FingerprintManager {
@@ -46,20 +55,21 @@ public:
     bool deleteFingerprint(uint16_t id);
     bool emptyDatabase();
     
-    // Métodos para obtenção de informações
-    int getTemplateCount();
-    bool isEnrolling();
-    
     // Métodos de controle
     void updateAuthProcess();
     void updateEnrollProcess();
+    void update();
+    
+    // Getters
+    int getTemplateCount();
 
 private:
     SoftwareSerial _serial;
     Adafruit_Fingerprint _finger;
     DisplayManager* _display;
-    EnrollState _currentEnrollState = IDLE;
+    FingerprintState _currentState = FINGERPRINT_IDLE;
     AuthState _currentAuthState = AUTH_IDLE;
+    EnrollState _currentEnrollState = ENROLL_IDLE;
     int _count;
     uint8_t _lockPin;
     uint8_t _enrollId = 0;
