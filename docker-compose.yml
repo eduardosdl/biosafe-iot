@@ -7,8 +7,8 @@ services:
       - "1883:1883"
       - "9001:9001"
     volumes:
+      - mosquitto_data:/mosquitto/data
       - ./mosquitto/config:/mosquitto/config:rw
-      - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
     networks:
       - biosafe_network
@@ -26,7 +26,6 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: mysql_local
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -36,62 +35,31 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./dados_mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
       - biosafe_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8081:80"
+    networks:
+      - biosafe_network
+    depends_on:
+      - mysql
+
   mqttx:
     image: emqx/mqttx-web
     hostname: mqttx
     restart: unless-stopped
     ports:
       - "80:80"
-    networks:
-      - biosafe_network
-
-  postgres:
-    image: postgres:latest
-    hostname: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: biosafe
-      POSTGRES_PASSWORD: biosafe
-      POSTGRES_DB: biosafe
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - biosafe_network
-
-  pgadmin:
-    image: dpage/pgadmin4
-    hostname: pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: biosafe@email.com
-      PGADMIN_DEFAULT_PASSWORD: biosafe
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - biosafe_network
-    depends_on:
-      - postgres
-
-  influxdb:
-    image: influxdb:latest
-    hostname: influxdb
-    restart: unless-stopped
-    environment:
-      INFLUXDB_USER: biosafe
-      INFLUXDB_USER_PASSWORD: biosafe
-      INFLUXDB_DB: biosafe
-    ports:
-      - "8086:8086"
-    volumes:
-      - influxdb_data:/var/lib/influxdb
     networks:
       - biosafe_network
 
@@ -103,6 +71,5 @@ volumes:
   config:
   data:
   log:
-  postgres_data:
-  pgadmin_data:
-  influxdb_data:
+  mysql_data:
+  mosquitto_data:

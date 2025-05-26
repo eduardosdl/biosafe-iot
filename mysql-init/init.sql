@@ -2,7 +2,17 @@ CREATE DATABASE IF NOT EXISTS digitalStorage;
 
 USE digitalStorage;
 
-CREATE TABLE IF NOT EXISTS digital_id (
-  id INT NOT NULL UNIQUE,
-  name VARCHAR(255)
+CREATE TABLE IF NOT EXISTS profiles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  fingerprint_id INT NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS lock_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  profile_id INT,
+  action ENUM('locked', 'unlocked') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE RESTRICT
+)
