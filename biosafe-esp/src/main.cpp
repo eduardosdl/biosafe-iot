@@ -14,7 +14,7 @@
 #define WIFI_SSID "Edla_2.4"
 #define WIFI_PASSWORD "13052203"
 // - mqtt
-#define MQTT_HOST IPAddress(192, 168, 1, 16)
+#define MQTT_HOST IPAddress(192, 168, 1, 8)
 // #define MQTT_HOST IPAddress(192, 168, 130, 64)
 #define MQTT_PORT 1883
 #define BROKER_USER "edu"

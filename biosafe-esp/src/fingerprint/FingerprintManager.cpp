@@ -138,11 +138,8 @@ void FingerprintManager::updateAuthProcess() {
                 _display->showMessage("Processando...", 50, 2, false);
 
                 sendMqttMessage("auth/init", fingerId, true);
-                delay(1000);
                 _currentAuthState = AUTH_IDLE;
             } else {
-                Serial.println("Digital não reconhecida.");
-                delay(2000);
                 _currentAuthState = AUTH_FAILED;
             }
             break;
