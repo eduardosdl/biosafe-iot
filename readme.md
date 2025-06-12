@@ -2,8 +2,8 @@
 
 BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitto como broker, Node-RED para processamento e visualização de dados, e MySQL para armazenamento persistente de informações, além disso possuímos, um aplicativo para monitoramento e controle.
 
-[GitHub do projeto do aplicativo](https://github.com/eduardosdl/biosafe-app)
-[GitHub do projeto do ESP8266](https://github.com/eduardosdl/biosafe-esp)
+#### [GitHub do projeto do aplicativo](https://github.com/eduardosdl/biosafe-app)
+#### [GitHub do projeto do ESP8266](https://github.com/eduardosdl/biosafe-esp)
 
 ## Arquitetura do Sistema
 
