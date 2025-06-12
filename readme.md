@@ -7,6 +7,10 @@ BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitt
 
 ## Arquitetura do Sistema
 
+<p align="center">
+    <img src="./images/biosafe-cloud-diagram.png" alt="BioSafe Demo" width="300" />
+</p>
+
 ### Componentes Principais
 - **Mosquitto**: Broker MQTT para comunicação entre dispositivos
 - **Node-RED**: Processamento de fluxos de dados e interface dashboard
