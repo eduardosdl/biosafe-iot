@@ -48,6 +48,12 @@ void FingerprintManager::startAuth() {
     _currentEnrollState = ENROLL_IDLE;
 }
 
+void FingerprintManager::stopAuth() {
+    _currentState = FINGERPRINT_IDLE;
+    _currentAuthState = AUTH_IDLE;
+    _currentEnrollState = ENROLL_IDLE;
+}
+
 // Inicia o processo de cadastro de impressão digital
 void FingerprintManager::startEnroll() {
     _enrollId = _finger.templateCount + 1;

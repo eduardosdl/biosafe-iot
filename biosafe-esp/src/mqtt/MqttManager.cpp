@@ -42,6 +42,16 @@ void MqttManager::setRequestEnroll(RequestEnroll requestEnroll) {
     _requestEnroll = requestEnroll;
 }
 
+// Configurar o callback para solicitar abertura da fechadura
+void MqttManager::setRequestOpen(RequestOpen requestOpen) {
+    _requestOpen = requestOpen;
+}
+
+// Configurar o callback para solicitar fechamento da fechadura
+void MqttManager::setRequestClosed(RequestCloed requestClosed) {
+    _requestClosed = requestClosed;
+}
+
 // Conectar ao broker MQTT
 void MqttManager::connect() {
     _display->showMessage("Conectando ao MQTT...");
@@ -125,6 +135,14 @@ void MqttManager::onMessage(
             delay(2000);
             _fingerprint->showModuleInfo();
         }
+    } else if (strcmp(topic, "lock/state/open") == 0) {
+        if (_requestOpen) {
+            _requestOpen();
+        }
+    } else if (strcmp(topic, "lock/state/closed") == 0) {
+        if (_requestClosed) {
+            _requestClosed();
+        }
     }
 }
 
@@ -139,6 +157,8 @@ void MqttManager::onPublish(uint16_t packetId) {
 void MqttManager::subscribeTopics() {
     _mqttClient.subscribe("register/init", 2);
     _mqttClient.subscribe("auth/status", 2);
+    _mqttClient.subscribe("lock/state/open", 2);
+    _mqttClient.subscribe("lock/state/closed", 2);
 }
 
 // Publicar dados de digital

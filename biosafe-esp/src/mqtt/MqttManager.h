@@ -9,6 +9,8 @@
 #include "../lock/LockManager.h"
 
 typedef void (*RequestEnroll)();
+typedef void (*RequestOpen)();
+typedef void (*RequestCloed)();
 
 class MqttManager {
 public:
@@ -17,6 +19,8 @@ public:
     
     // Setters
     void setRequestEnroll(RequestEnroll requestEnroll);
+    void setRequestOpen(RequestOpen requestOpen);
+    void setRequestClosed(RequestCloed requestClosed);
 
     // Métodos
     void begin(IPAddress host, uint16_t port, const char* username, const char* password);
@@ -35,6 +39,8 @@ private:
     FingerprintManager* _fingerprint;
     LockManager* _lock;
     RequestEnroll _requestEnroll;
+    RequestOpen _requestOpen;
+    RequestCloed _requestClosed;
     bool _connected;
 
     // Callbacks

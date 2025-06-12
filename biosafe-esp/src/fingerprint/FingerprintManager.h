@@ -51,6 +51,7 @@ public:
     
     // Operações com impressão digital
     void startAuth();
+    void stopAuth();
     void startEnroll();
     bool deleteFingerprint(uint16_t id);
     bool emptyDatabase();

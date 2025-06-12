@@ -29,7 +29,12 @@ bool LockManager::unlock(uint16_t userId, const char* username) {
         _display->setTextColor(ST7735_BLACK);
 
         _display->showMessage("Fechadura destrancada", 15, 1, false);
-        _display->showMessage("Nome:", 30, 2, false);
+        if (userId > 0) {
+            _display->showMessage("Nome do usuário:", 30, 2, false);
+            _display->showMessage(String(userId).c_str(), 50, 2, false);
+        } else {
+            _display->showMessage("Aberto pelo dispositivo de segurança", 30, 2, false);
+        }
         _display->showMessage(username, 50, 2, false);
 
         sendMqttStatus(userId, true, true);
@@ -93,4 +98,8 @@ void LockManager::sendMqttStatus(uint16_t userId, bool unlocked, bool success) {
         serializeJson(doc, buf);
         _mqttPublish("lock/status", buf.c_str());
     }
+}
+
+bool LockManager::isOpen() const {
+    return _lockState == UNLOCKED;
 }

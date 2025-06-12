@@ -30,6 +30,9 @@ public:
     bool unlock(uint16_t userId = 0, const char* username = "");
     bool lock();
     void update();
+
+    // Métodos de status
+    bool isOpen() const;
     
 private:
     uint8_t _lockPin;

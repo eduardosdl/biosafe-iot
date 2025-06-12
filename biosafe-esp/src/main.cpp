@@ -7,15 +7,15 @@
 
 // DEFINIÇÃO DE CONSTANTES
 // - wifi
-// #define WIFI_SSID "NOVA ROMA_ALUNOS"
-// #define WIFI_PASSWORD "Alunos@2025"
-// #define WIFI_SSID "Edu"
-// #define WIFI_PASSWORD "eduardo23"
-#define WIFI_SSID "Edla_2.4"
-#define WIFI_PASSWORD "13052203"
+// #define WIFI_SSID "SANTOS NEW LINK "
+// #define WIFI_PASSWORD "20042006"
+#define WIFI_SSID "natan"
+#define WIFI_PASSWORD "12345678"
+// #define WIFI_SSID "Edla_2.4"
+// #define WIFI_PASSWORD "13052203"
 // - mqtt
-#define MQTT_HOST IPAddress(192, 168, 1, 8)
-// #define MQTT_HOST IPAddress(192, 168, 130, 64)
+// #define MQTT_HOST IPAddress(192, 168, 1, 7)
+#define MQTT_HOST IPAddress(192, 168, 122, 64)
 #define MQTT_PORT 1883
 #define BROKER_USER "edu"
 #define BROKER_PASS "eduardo"
@@ -46,6 +46,8 @@ MqttManager mqtt(&display, &fingerprint, &lock);
 
 // variaveis de controle de loop
 volatile bool fingerprintEnroll = false;
+volatile bool requestOpen = false;
+volatile bool requestClosed = false;
 
 // Callbacks
 void connectToMqtt() {
@@ -60,6 +62,14 @@ void sendMqttMessage (const char* topic, const char* payload) {
 
 void requestFingerprintEnroll() {
     fingerprintEnroll = true;
+}
+
+void requestFingerprintOpen() {
+    requestOpen = true;
+}
+
+void requestFingerprintClosed() {
+    requestClosed = true;
 }
 
 void setup() {
@@ -85,6 +95,8 @@ void setup() {
     
     // injeção de callbacks
     mqtt.setRequestEnroll(requestFingerprintEnroll);
+    mqtt.setRequestOpen(requestFingerprintOpen);
+    mqtt.setRequestClosed(requestFingerprintClosed);
     fingerprint.setMqttPublish(sendMqttMessage);
 
     // Configuração e início do WiFi
@@ -98,6 +110,24 @@ void loop() {
     if (fingerprintEnroll) {
         fingerprint.startEnroll();
         fingerprintEnroll = false;
+    }
+
+    if (requestOpen) {
+        if (!lock.isOpen()) {
+            Serial.println("Requisição de abertura recebida");
+            fingerprint.stopAuth();
+            lock.unlock();
+        }
+        requestOpen = false;
+    }
+
+    if (requestClosed) {
+        if (lock.isOpen()) {
+            Serial.println("Requisição de fechamento recebida");
+            lock.lock();
+            fingerprint.showModuleInfo();
+        }
+        requestClosed = false;
     }
 
     fingerprint.update();
