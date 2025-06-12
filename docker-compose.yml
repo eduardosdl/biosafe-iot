@@ -13,14 +13,14 @@ services:
     networks:
       - biosafe_network
 
-  node_red:
+  node-red:
     image: nodered/node-red
     hostname: node_red
     restart: unless-stopped
     ports:
       - "1880:1880"
     volumes:
-      - ./nodered_data:/data:rw
+      - node_red_data:/data
     networks:
       - biosafe_network
 
@@ -28,10 +28,10 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: digitalStorage
-      MYSQL_USER: user
-      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME:-biosafe}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     ports:
       - "3306:3306"
     volumes:
@@ -73,3 +73,4 @@ volumes:
   log:
   mysql_data:
   mosquitto_data:
+  node_red_data:

@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS lock_logs (
   action ENUM('locked', 'unlocked') NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE RESTRICT
-)
+);

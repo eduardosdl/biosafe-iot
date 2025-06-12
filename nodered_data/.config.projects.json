@@ -1,8 +1,0 @@
-{
-    "projects": {
-        "biosafe": {
-            "credentialSecret": false
-        }
-    },
-    "activeProject": "biosafe"
-}

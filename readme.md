@@ -1,6 +1,8 @@
 # BioSafe - Sistema IoT de Monitoramento
 
-BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitto como broker, Node-RED para processamento e visualização de dados, e MySQL para armazenamento persistente de informações.
+BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitto como broker, Node-RED para processamento e visualização de dados, e MySQL para armazenamento persistente de informações, além disso possuímos, um aplicativo para monitoramento e controle.
+
+[GitHub do projeto do aplicativo com mais informações](https://github.com/eduardosdl/biosafe-app)
 
 ## Arquitetura do Sistema
 
@@ -10,6 +12,7 @@ BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitt
 - **MySQL**: Banco de dados para armazenamento persistente de dados
 - **ESP32/ESP8266**: Módulo IoT para controle de acesso com sensor de impressão digital ([Documentação código do esp](./biosafe-esp/README.md))
 
+#### **[Docmentação cmunicações MQTT e HTTP](./comunicacao.md)**
 
 ### Ferramentas de Desenvolvimento e Debug
 - **MQTTX Web**: Cliente MQTT baseado em navegador para testes e depuração
@@ -17,26 +20,83 @@ BioSafe é um sistema IoT para monitoramento baseado em MQTT utilizando Mosquitt
 
 ## Inicialização do Ambiente
 
-### Iniciar os Serviços
-Para iniciar todos os serviços, execute:
+Siga os passos abaixo para configurar e executar o sistema BioSafe pela primeira vez:
+
+### Passo 1: Configuração das Variáveis de Ambiente
+
+Copie o arquivo `.env.example` e renomeie para `.env`, depois adicione os valores para cada variável:
 
 ```bash
-docker-compose up -d
+cp .env.example .env
 ```
 
-### Verificar Status dos Containers
-Para verificar se os containers estão em execução:
+Edite o arquivo `.env` com suas credenciais:
+```env
+MYSQL_USER=user
+MYSQL_PASSWORD=sua_senha_aqui
+MYSQL_ROOT_PASSWORD=sua_senha_root_aqui
+MYSQL_DATABASE_NAME=node_do_banco_de_dados_aqui
+```
+
+### Passo 2: Configuração do Mosquitto MQTT
+
+Crie um usuário para autenticação no broker MQTT:
 
 ```bash
-docker-compose ps
+docker compose run --rm mosquitto sh -c "mosquitto_passwd -c /mosquitto/config/pwfile <nome_usuario>"
 ```
 
-Você pode iniciar serviços específicos se necessário:
+> **Nota**: Substitua `<nome_usuario>` e a senha informada pelos valores desejados.
+> Guarde essas credenciais para uso posterior no Node-RED.
+
+### Passo 3: Inicialização dos Containers
+
+Execute o comando para iniciar todos os serviços:
 
 ```bash
-# Apenas serviços essenciais
-docker-compose up -d mosquitto node_red mysql
+docker compose up -d
 ```
+
+Para verificar se todos os containers estão rodando corretamente:
+
+```bash
+docker compose ps
+```
+
+**Opcional**: Iniciar apenas serviços específicos:
+```bash
+docker compose up -d mosquitto node_red mysql
+```
+
+Para parar os serviços rode:
+```bash
+docker compsoe down
+```
+
+### Passo 4: Configuração do Node-RED
+
+1. Acesse o Node-RED em: http://localhost:1880
+
+2. Instale os módulos necessárias através do menu **Manage palette (Gerenciar paleta)**:
+   - `node-red-dashboard`
+   - `node-red-node-mysql-dynamic`
+
+3. Importe o fluxo em `./nodered/flows.json`
+
+4. Altere as configurações de conexões nos nós:
+   - **Mosquitto**: Use as credenciais criadas no Passo 2
+   - **MySQL**: Use as credenciais definidas no arquivo `.env`
+
+### Passo 5: Verificação da Instalação
+
+Após completar os passos anteriores, verifique se todos os serviços estão acessíveis:
+
+- **Node-RED**: http://localhost:1880
+- **Dashboard**: http://localhost:1880/ui
+- **MQTTX Web**: http://localhost:80
+- **phpMyAdmin**: http://localhost:8081
+
+> **Dica**: Se algum serviço não estiver respondendo, verifique os logs com `docker compose logs <nome_do_serviço>`
 
 ## Acesso aos Serviços
 
@@ -45,6 +105,7 @@ docker-compose up -d mosquitto node_red mysql
 | Serviço | URL/Porta | Descrição |
 |---------|-----------|-----------|
 | Node-RED | http://localhost:1880 | Interface de programação por fluxos |
+| Node-RED Rest API | http://localhost:1880/**/* | Endpoints para requisições HTTP |
 | Node-RED Dashboard | http://localhost:1880/ui | Painel de visualização e controle |
 | Mosquitto | TCP: 1883, WebSocket: 9001 | Broker MQTT para comunicação |
 | MySQL | localhost:3306 | Banco de dados relacional |
@@ -74,19 +135,6 @@ O arquivo `mosquitto.conf` contém as seguintes configurações principais:
 - **Dados**: `/mosquitto/data/mosquitto.db`
 - **Logs**: `/mosquitto/log/`
 
-### Criação de Usuários no Mosquitto
-Após iniciar o container do Mosquitto, crie novos usuários com o seguinte comando:
-
-```bash
-docker exec -it mosquitto mosquitto_passwd -b /mosquitto/config/pwfile <nome_usuario>
-```
-
-Para recarregar a configuração após adicionar usuários:
-
-```bash
-docker exec -it mosquitto mosquitto_control reload
-```
-
 ### Conexões com o Broker
 - **Dispositivos IoT**: Conectar via MQTT (porta 1883)
 - **Aplicações Web**: Conectar via WebSockets (porta 9001) 
@@ -97,13 +145,11 @@ docker exec -it mosquitto mosquitto_control reload
 
 ### MQTTX Web
 Cliente MQTT baseado em navegador para testar a comunicação MQTT:
-- **URL**: http://localhost:80
 - **Uso**: Testar publicação e assinatura de tópicos MQTT
 - **Conexão**: Host: mosquitto, Porta: 1883 (MQTT) ou 9001 (WebSockets)
 
 ### phpMyAdmin
 Interface web para gerenciamento do banco de dados:
-- **URL**: http://localhost:8081
 - **Uso**: Visualização e manipulação da estrutura e dados do banco
 
 ## Desenvolvimento e Expansão
@@ -124,36 +170,9 @@ O sistema utiliza MySQL para armazenamento persistente de dados:
 - **Versão**: MySQL 8.0
 - **Porta**: 3306
 - **Banco Padrão**: digitalStorage
-- **Usuário Padrão**: user
-- **Senha Padrão**: root
-
-### phpMyAdmin
-Interface web para administração do banco de dados:
-- **URL**: http://localhost:8081
-- **Login**: user / root (ou root / root para acesso administrativo)
 
 ### Inicialização do Banco
 O script `mysql-init/init.sql` é executado automaticamente durante a primeira inicialização do container MySQL para criar as tabelas e estruturas necessárias.
-
-## Solução de Problemas
-
-### Logs
-Para visualizar logs dos serviços:
-
-```bash
-# Logs do Mosquitto
-docker logs mosquitto
-
-# Logs do Node-RED
-docker logs node_red
-
-# Logs do MySQL
-docker logs mysql
-
-# Logs das ferramentas de desenvolvimento
-docker logs mqttx
-docker logs phpmyadmin
-```
 
 ## Node-RED
 
@@ -162,19 +181,9 @@ docker logs phpmyadmin
 - **Workspace**: Os fluxos estão organizados no projeto `biosafe`
 - **Arquivos de Fluxo**: Localizados em `./nodered_data/projects/biosafe/flows.json`
 
-### Dashboard
-O Node-RED Dashboard está disponível em: `http://localhost:1880/ui`
-
-### Integração com MQTT e MySQL
+### Integração com MQTT, MySQL e HTTP
 O Node-RED está configurado para:
 - Conectar-se ao broker Mosquitto usando o nome do host interno `mosquitto`
 - Armazenar dados recebidos via MQTT no banco de dados MySQL
 - Exibir visualizações e controles em tempo real através do dashboard
-
-### Tópicos MQTT Principais
-Os seguintes tópicos são utilizados pelo sistema:
-- `register/init` - comando para iniciar o cadastro de uma nova biometria no esp
-- `register/status` - enviado pelo esp ao concluir o processo de cadastro
-- `auth/init` - o esp envia qunado reconhece uma digital
-- `auth/status` - nodered envia passando do usuário que está sendo autenticado
-- `lock/status` - enviado ao realizar alguma alterção na fechadura para armazenamento de log
+- Oferecer uma interface HTTP para busca de dados do MySQL
