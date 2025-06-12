@@ -1,0 +1,6 @@
+[submodule "app"]
+	path = app
+	url = https://github.com/eduardosdl/biosafe-app
+[submodule "esp"]
+	path = esp
+	url = https://github.com/eduardosdl/biosafe-esp
