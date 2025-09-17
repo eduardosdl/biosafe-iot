@@ -21,6 +21,7 @@ services:
       - "1880:1880"
     volumes:
       - node_red_data:/data
+      - ./nodered/service-account.json:/data/service-account.json
     networks:
       - biosafe_network
 
@@ -29,7 +30,6 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME:-biosafe}
       MYSQL_USER: ${MYSQL_USER:-user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     ports:
